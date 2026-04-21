@@ -119,6 +119,7 @@ GitHub Actions workflow:
 
 It builds APKs for:
 
+- `universal` using all supported architectures
 - `armeabi-v7a`
 - `arm64-v8a`
 - `x86`
@@ -131,7 +132,7 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-The workflow runs typecheck, unit tests, builds release APKs per architecture, uploads artifacts, and attaches APKs to the GitHub Release.
+The workflow runs typecheck, unit tests, generates the Android native project, builds release APKs per architecture plus a universal APK, uploads artifacts, and attaches APKs to the GitHub Release.
 
 ## Android Release Signing
 
