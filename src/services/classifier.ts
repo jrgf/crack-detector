@@ -1,4 +1,5 @@
 import { loadTensorflowModel, TfliteModel } from 'react-native-fast-tflite';
+import { Asset } from 'expo-asset';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
 import {
@@ -9,16 +10,28 @@ import {
 } from '../constants';
 import { ClassificationResult, CrackClass } from '../types';
 
+const MODEL_ASSET = require('../../assets/models/crack_classifier_int8.tflite');
+
 let model: TfliteModel | null = null;
 
 export async function loadModel(): Promise<void> {
   if (model) return;
 
-  model = await loadTensorflowModel(
-    require('../../assets/models/crack_classifier_int8.tflite'),
-    []
-  );
+  const modelUri = await resolveModelUri();
+  model = await loadTensorflowModel({ url: modelUri }, []);
   console.log('Model loaded:', model.inputs, model.outputs);
+}
+
+async function resolveModelUri(): Promise<string> {
+  const asset = Asset.fromModule(MODEL_ASSET);
+  const downloadedAsset = await asset.downloadAsync();
+  const modelUri = downloadedAsset.localUri ?? downloadedAsset.uri;
+
+  if (!modelUri.includes('://')) {
+    throw new Error(`Model asset did not resolve to a loadable URI: ${modelUri}`);
+  }
+
+  return modelUri;
 }
 
 async function preprocessImage(uri: string): Promise<Float32Array> {
